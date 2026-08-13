@@ -1,0 +1,39 @@
+name: Digger
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, closed]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  digger:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write          # needed to checkout and post status
+      id-token: write          # needed for OIDC (if using federated credentials)
+      pull-requests: write     # needed to post plan output as PR comment
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.0"
+
+      - name: Run Digger
+        uses: diggerhq/digger@v0.6.64
+        with:
+          digger-token: ${{ secrets.DIGGER_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          # Azure Service Principal credentials stored as GitHub Secrets
+          ARM_CLIENT_ID:       ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET:   ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID:       ${{ secrets.ARM_TENANT_ID }}

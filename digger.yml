@@ -1,0 +1,22 @@
+projects:
+  - name: azure-infra
+    dir: .
+    workspace: default
+    terragrunt: false
+    workflow: default
+    workflow_file: .github/workflows/digger.yml
+
+workflows:
+  default:
+    plan:
+      steps:
+        - init:
+            extra_args: ["-backend-config=backend.hcl"]
+        - plan:
+            extra_args: ["-var-file=terraform.tfvars"]
+    apply:
+      steps:
+        - init:
+            extra_args: ["-backend-config=backend.hcl"]
+        - apply:
+            extra_args: ["-var-file=terraform.tfvars"]
