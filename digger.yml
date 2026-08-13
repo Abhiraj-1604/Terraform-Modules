@@ -4,7 +4,6 @@ projects:
     workspace: dev
     terragrunt: false
     workflow: default
-    workflow_file: digger.yml
 
 workflows:
   default:

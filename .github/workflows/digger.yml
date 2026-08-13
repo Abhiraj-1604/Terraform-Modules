@@ -12,6 +12,12 @@ jobs:
   digger:
     runs-on: ubuntu-latest
 
+    # Skip if PR was closed without merging
+    if: >
+      github.event_name != 'pull_request' ||
+      github.event.action != 'closed' ||
+      github.event.pull_request.merged == true
+
     permissions:
       contents: write
       id-token: write        # required for OIDC token exchange with Azure
@@ -24,7 +30,7 @@ jobs:
       - name: Run Digger
         uses: diggerhq/digger@v0.6.64
         with:
-          digger-token:          ${{ secrets.DIGGER_TOKEN }}
+          no-backend:            true                          # run without Digger cloud backend
           setup-azure:           true
           azure-client-id:       ${{ secrets.ARM_CLIENT_ID }}
           azure-tenant-id:       ${{ secrets.ARM_TENANT_ID }}
