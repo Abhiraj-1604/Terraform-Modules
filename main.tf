@@ -17,10 +17,12 @@ module "vnet" {
 }
 
 module "subnet" {
-  source = "github.com/Abhiraj-1604/Terraform-Modules//modules/subnet"
+  source   = "github.com/Abhiraj-1604/Terraform-Modules//modules/subnet"
+  for_each = var.subnets
 
-  subnet_name          = var.subnet_name
+  subnet_name          = each.key
   resource_group_name  = module.resource_group.resource_group_name
-  virtual_network_name = var.virtual_network_name
-  address_prefixes     = var.address_prefixes
+  virtual_network_name = each.value.virtual_network_name
+  address_prefixes     = each.value.address_prefixes
 }
+

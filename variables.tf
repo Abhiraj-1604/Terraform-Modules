@@ -26,18 +26,13 @@ variable "address_space" {
   type        = list(string)
 }
 
-# Subnet
-variable "virtual_network_name" {
-  description = "Name of the Virtual Network the Subnet belongs to (can differ from vnet_name if managing independently)"
-  type        = string
-}
-
-variable "subnet_name" {
-  description = "Name of the Subnet"
-  type        = string
-}
-
-variable "address_prefixes" {
-  description = "CIDR prefix(es) for the Subnet"
-  type        = list(string)
+# Subnets — map of subnet name to its config
+# Each key becomes the subnet name; each value holds its CIDR and parent VNET
+variable "subnets" {
+  description = "Map of subnets to create. Key = subnet name, value = { virtual_network_name, address_prefixes }"
+  type = map(object({
+    virtual_network_name = string
+    address_prefixes     = list(string)
+  }))
+  default = {}
 }
