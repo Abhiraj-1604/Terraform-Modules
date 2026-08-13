@@ -1,22 +1,15 @@
-name: Digger
+name: Digger Workflow
 
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize, reopened, closed]
-  issue_comment:
-    types: [created]
   workflow_dispatch:
+    inputs:
+      digger-spec:
+        description: "Digger job spec (injected by Digger GitHub App)"
+        required: true
 
 jobs:
   digger:
     runs-on: ubuntu-latest
-
-    # Skip if PR was closed without merging
-    if: >
-      github.event_name != 'pull_request' ||
-      github.event.action != 'closed' ||
-      github.event.pull_request.merged == true
 
     permissions:
       contents: write
@@ -30,7 +23,8 @@ jobs:
       - name: Run Digger
         uses: diggerhq/digger@v0.6.64
         with:
-          no-backend:            true                          # run without Digger cloud backend
+          digger-spec:           ${{ inputs.digger-spec }}
+          digger-token:          ${{ secrets.DIGGER_TOKEN }}
           setup-azure:           true
           azure-client-id:       ${{ secrets.ARM_CLIENT_ID }}
           azure-tenant-id:       ${{ secrets.ARM_TENANT_ID }}
