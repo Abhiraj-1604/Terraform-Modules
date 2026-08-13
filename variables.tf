@@ -15,15 +15,14 @@ variable "tags" {
   default     = {}
 }
 
-# Virtual Network
-variable "vnet_name" {
-  description = "Name of the Virtual Network"
-  type        = string
-}
-
-variable "address_space" {
-  description = "CIDR block(s) for the Virtual Network"
-  type        = list(string)
+# Virtual Networks — map of VNET name to its config
+# Each key becomes the VNET name; each value holds its address space
+variable "vnets" {
+  description = "Map of VNETs to create. Key = VNET name, value = { address_space }"
+  type = map(object({
+    address_space = list(string)
+  }))
+  default = {}
 }
 
 # Subnets — map of subnet name to its config

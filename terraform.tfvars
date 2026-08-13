@@ -2,8 +2,14 @@ resource_group_name = "my-rg"
 location            = "eastus"
 tags                = { env = "dev", owner = "abhiraj" }
 
-vnet_name     = "my-vnet"
-address_space = ["10.0.0.0/16"]
+vnets = {
+  vnet-app = {
+    address_space = ["10.0.0.0/16"]
+  }
+  vnet-data = {
+    address_space = ["10.1.0.0/16"]
+  }
+}
 
 subnets = {
   subnet-frontend = {

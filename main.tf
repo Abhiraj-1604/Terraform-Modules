@@ -7,12 +7,13 @@ module "resource_group" {
 }
 
 module "vnet" {
-  source = "github.com/Abhiraj-1604/Terraform-Modules//modules/vnet"
+  source   = "github.com/Abhiraj-1604/Terraform-Modules//modules/vnet"
+  for_each = var.vnets
 
-  vnet_name           = var.vnet_name
+  vnet_name           = each.key
   resource_group_name = module.resource_group.resource_group_name
   location            = module.resource_group.resource_group_location
-  address_space       = var.address_space
+  address_space       = each.value.address_space
   tags                = var.tags
 }
 
