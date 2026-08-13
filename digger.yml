@@ -1,7 +1,7 @@
 projects:
   - name: azure-infra
     dir: .
-    workspace: default
+    workspace: dev
     terragrunt: false
     workflow: default
     workflow_file: .github/workflows/digger.yml
