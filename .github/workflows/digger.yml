@@ -32,4 +32,5 @@ jobs:
           setup-terraform:       true
           terraform-version:     "1.9.0"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # must be env var, not with input
+          GITHUB_TOKEN:   ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_CONTEXT: ${{ toJson(github) }}
