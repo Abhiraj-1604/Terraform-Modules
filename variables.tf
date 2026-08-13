@@ -2,13 +2,11 @@
 variable "resource_group_name" {
   description = "Name of the Azure Resource Group"
   type        = string
-  default     = "my-rg"
 }
 
 variable "location" {
   description = "Azure region (e.g. eastus, westeurope)"
   type        = string
-  default     = "eastus"
 }
 
 variable "tags" {
@@ -21,24 +19,25 @@ variable "tags" {
 variable "vnet_name" {
   description = "Name of the Virtual Network"
   type        = string
-  default     = "my-vnet"
 }
 
 variable "address_space" {
   description = "CIDR block(s) for the Virtual Network"
   type        = list(string)
-  default     = ["10.0.0.0/16"]
 }
 
 # Subnet
+variable "virtual_network_name" {
+  description = "Name of the Virtual Network the Subnet belongs to (can differ from vnet_name if managing independently)"
+  type        = string
+}
+
 variable "subnet_name" {
   description = "Name of the Subnet"
   type        = string
-  default     = "my-subnet"
 }
 
 variable "address_prefixes" {
   description = "CIDR prefix(es) for the Subnet"
   type        = list(string)
-  default     = ["10.0.1.0/24"]
 }
