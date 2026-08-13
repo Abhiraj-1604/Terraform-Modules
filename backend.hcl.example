@@ -1,7 +1,0 @@
-# backend.hcl — copy this file, fill in your values, and DO NOT commit it
-# The actual backend.hcl is gitignored; this is just a reference template
-
-resource_group_name  = "REPLACE_WITH_YOUR_TFSTATE_RG"
-storage_account_name = "REPLACE_WITH_YOUR_STORAGE_ACCOUNT"
-container_name       = "tfstate"
-key                  = "azure-infra/terraform.tfstate"
