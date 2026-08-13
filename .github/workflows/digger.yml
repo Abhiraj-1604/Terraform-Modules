@@ -14,25 +14,22 @@ jobs:
 
     permissions:
       contents: write
-      id-token: write          # required for OIDC token exchange with Azure
+      id-token: write        # required for OIDC token exchange with Azure
       pull-requests: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.9.0"
-
       - name: Run Digger
         uses: diggerhq/digger@v0.6.64
         with:
-          digger-token: ${{ secrets.DIGGER_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          digger-token:          ${{ secrets.DIGGER_TOKEN }}
+          setup-azure:           true
+          azure-client-id:       ${{ secrets.ARM_CLIENT_ID }}
+          azure-tenant-id:       ${{ secrets.ARM_TENANT_ID }}
+          azure-subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          setup-terraform:       true
+          terraform-version:     "1.9.0"
         env:
-          ARM_CLIENT_ID:       ${{ secrets.ARM_CLIENT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID:       ${{ secrets.ARM_TENANT_ID }}
-          ARM_USE_OIDC: "true"   # no client secret needed — uses GitHub OIDC token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # must be env var, not with input
