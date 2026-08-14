@@ -1,40 +1,31 @@
 name: Digger Workflow
-
 on:
-  # Digger orchestrator callback – triggered by the Digger GitHub App
+  # Digger orchestrator callback – PRs still get full Digger Cloud treatment
   workflow_dispatch:
     inputs:
       digger-spec:
         description: "Digger job spec (injected by Digger GitHub App)"
         required: true
-
-  # Run init + plan on every push to dev
+  pull_request:
+    branches:
+      - main
+  # Direct pushes to dev – handled separately, no Digger Cloud reporting
   push:
     branches:
       - dev
 
-  # Run init + plan on every PR targeting main
-  pull_request:
-    branches:
-      - main
-
 jobs:
-  # ── Digger orchestrator callback (workflow_dispatch only) ──────────────────
+  # ── Digger orchestrator callback (PR-based, unchanged) ──────────────────
   digger:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
-      id-token: write        # required for OIDC token exchange with Azure
+      id-token: write
       pull-requests: write
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run Digger
-        uses: diggerhq/digger@v0.6.64
+      - uses: actions/checkout@v4
+      - uses: diggerhq/digger@v0.6.64
         with:
           digger-spec:           ${{ inputs.digger-spec }}
           digger-token:          ${{ secrets.DIGGER_TOKEN }}
@@ -48,32 +39,81 @@ jobs:
           GITHUB_TOKEN:   ${{ secrets.GITHUB_TOKEN }}
           GITHUB_CONTEXT: ${{ toJson(github) }}
 
-  # ── Auto init + plan (push to dev / PR to main) ───────────────────────────
-  digger-plan:
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+  # ── Direct push to dev – plain init/plan with native GitHub feedback ────
+  push-to-dev-plan:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
-
     permissions:
-      contents: write
-      id-token: write        # required for OIDC token exchange with Azure
-      pull-requests: write
-
+      contents: read
+      id-token: write
+      checks: write
+      statuses: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Run Digger (init + plan)
-        uses: diggerhq/digger@v0.6.64
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2.1.1
         with:
-          digger-token:          ${{ secrets.DIGGER_TOKEN }}
-          setup-azure:           true
-          azure-client-id:       ${{ secrets.ARM_CLIENT_ID }}
-          azure-tenant-id:       ${{ secrets.ARM_TENANT_ID }}
-          azure-subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-          setup-terraform:       true
-          terraform-version:     "1.9.0"
-          # Restrict to plan-only; apply is not triggered here
-          disable-apply-changes: true
-        env:
-          GITHUB_TOKEN:   ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_CONTEXT: ${{ toJson(github) }}
+          client-id:       ${{ secrets.ARM_CLIENT_ID }}
+          tenant-id:        ${{ secrets.ARM_TENANT_ID }}
+          subscription-id:  ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.0"
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend-config=backend.hcl
+        continue-on-error: true
+
+      - name: Terraform Plan
+        id: plan
+        if: steps.init.outcome == 'success'
+        run: |
+          terraform plan -var-file=terraform.tfvars -no-color 2>&1 | tee plan_output.txt
+        continue-on-error: true
+
+      - name: Write Job Summary
+        if: always()
+        run: |
+          echo "## Terraform Plan — push to \`dev\` @ ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.init.outcome }}" == "failure" ]; then
+            echo "### ❌ Init failed" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.plan.outcome }}" == "failure" ]; then
+            echo "### ❌ Plan failed" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat plan_output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ✅ Plan succeeded" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat plan_output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Set commit status
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const initOk = '${{ steps.init.outcome }}' === 'success';
+            const planOk = '${{ steps.plan.outcome }}' === 'success';
+            const state = (initOk && planOk) ? 'success' : 'failure';
+            const description = (initOk && planOk)
+              ? 'Terraform init+plan succeeded'
+              : 'Terraform init/plan failed — see run summary';
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: state,
+              description: description,
+              context: 'terraform/plan-dev'
+            });
+
+      - name: Fail job if init/plan failed
+        if: steps.init.outcome == 'failure' || steps.plan.outcome == 'failure'
+        run: exit 1
