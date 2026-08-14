@@ -34,6 +34,7 @@ jobs:
         uses: diggerhq/digger@v0.6.64
         with:
           no-backend:            true
+          disable-locking:       true
           setup-azure:           true
           azure-client-id:       ${{ secrets.ARM_CLIENT_ID }}
           azure-tenant-id:       ${{ secrets.ARM_TENANT_ID }}
@@ -41,5 +42,7 @@ jobs:
           setup-terraform:       true
           terraform-version:     "1.9.0"
         env:
-          GITHUB_TOKEN:   ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_CONTEXT: ${{ toJson(github) }}
+          GITHUB_TOKEN:    ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_CONTEXT:  ${{ toJson(github) }}
+          DISABLE_LOCKING: "true"
+          NO_BACKEND:      "true"

@@ -1,3 +1,6 @@
+telemetry: false
+pr_locks: false
+
 projects:
   - name: azure-infra
     dir: .
