@@ -13,9 +13,3 @@ workflows:
             extra_args: ["-backend-config=backend.hcl"]
         - plan:
             extra_args: ["-var-file=terraform.tfvars"]
-    apply:
-      steps:
-        - init:
-            extra_args: ["-backend-config=backend.hcl"]
-        - apply:
-            extra_args: ["-var-file=terraform.tfvars"]
