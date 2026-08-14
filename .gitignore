@@ -7,8 +7,6 @@
 .terraform/
 .terraform.lock.hcl
 
-# Backend config — contains storage account details, keep local only
-backend.hcl
 
 # Crash log files
 crash.log
