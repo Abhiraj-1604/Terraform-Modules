@@ -33,8 +33,7 @@ jobs:
       - name: Run Digger
         uses: diggerhq/digger@v0.6.64
         with:
-          digger-spec:           ${{ inputs.digger-spec }}
-          digger-token:          ${{ secrets.DIGGER_TOKEN }}
+          no-backend:            true
           setup-azure:           true
           azure-client-id:       ${{ secrets.ARM_CLIENT_ID }}
           azure-tenant-id:       ${{ secrets.ARM_TENANT_ID }}
