@@ -44,7 +44,12 @@ jobs:
           setup-terraform:       true
           terraform-version:     "1.9.0"
         env:
-          GITHUB_TOKEN:    ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_CONTEXT:  ${{ toJson(github) }}
-          DISABLE_LOCKING: "true"
-          NO_BACKEND:      "true"
+          GITHUB_TOKEN:          ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_CONTEXT:        ${{ toJson(github) }}
+          DISABLE_LOCKING:       "true"
+          NO_BACKEND:            "true"
+          ARM_CLIENT_ID:         ${{ secrets.ARM_CLIENT_ID }}
+          ARM_TENANT_ID:         ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID:   ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_USE_OIDC:          "true"
+          ARM_USE_AZURECLI:      "true"
