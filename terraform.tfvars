@@ -1,4 +1,4 @@
-tags = { env = "dev", owner = "abhiraj", managed_by = "terraform", project = "bsda", test = "digger-plan" }
+tags = { env = "dev", owner = "abhiraj", managed_by = "terraform", project = "bsda", test = "digger-end-to-end" }
 
 resource_groups = {
   rg-app = {
