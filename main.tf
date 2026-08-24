@@ -1,5 +1,5 @@
 module "resource_group" {
-  source   = "./modules/resource_group"
+  source   = "github.com/Abhiraj-1604/Terraform-Modules//modules/resource_group"
   for_each = var.resource_groups
 
   resource_group_name = each.key
@@ -8,7 +8,7 @@ module "resource_group" {
 }
 
 module "vnet" {
-  source   = "./modules/vnet"
+  source   = "github.com/Abhiraj-1604/Terraform-Modules//modules/vnet"
   for_each = var.vnets
 
   vnet_name           = each.key
@@ -19,7 +19,7 @@ module "vnet" {
 }
 
 module "subnet" {
-  source   = "./modules/subnet"
+  source   = "github.com/Abhiraj-1604/Terraform-Modules//modules/subnet"
   for_each = var.subnets
 
   subnet_name          = each.key
