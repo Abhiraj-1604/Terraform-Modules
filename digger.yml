@@ -2,53 +2,17 @@ telemetry: false
 pr_locks: false
 
 projects:
-  - name: azure-infra-dev
+  - name: azure-infra
     dir: .
     workspace: dev
-    branch: dev
     terragrunt: false
-    workflow: dev
-
-  - name: azure-infra-prod
-    dir: .
-    workspace: prod
-    branch: main
-    terragrunt: false
-    workflow: prod
+    workflow: default
 
 workflows:
-  dev:
+  default:
     plan:
       steps:
         - init:
             extra_args: ["-backend-config=backend.hcl"]
         - plan:
-            extra_args: ["-var-file=dev.tfvars"]
-    apply:
-      steps:
-        - init:
-            extra_args: ["-backend-config=backend.hcl"]
-        - apply:
-            extra_args: ["-var-file=dev.tfvars"]
-    workflow_configuration:
-      on_pull_request_pushed: [digger plan]
-      on_pull_request_closed: [digger unlock]
-      on_commit_to_default: [digger apply]
-
-  prod:
-    plan:
-      steps:
-        - init:
-            extra_args: ["-backend-config=backend.hcl"]
-        - plan:
-            extra_args: ["-var-file=prod.tfvars"]
-    apply:
-      steps:
-        - init:
-            extra_args: ["-backend-config=backend.hcl"]
-        - apply:
-            extra_args: ["-var-file=prod.tfvars"]
-    workflow_configuration:
-      on_pull_request_pushed: [digger plan]
-      on_pull_request_closed: [digger unlock]
-      on_commit_to_default: [digger apply]
+            extra_args: ["-var-file=terraform.tfvars"]
