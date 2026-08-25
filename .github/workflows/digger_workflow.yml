@@ -16,6 +16,10 @@ on:
   issue_comment:
     types: [created]
 
+  push:
+    branches:
+      - dev
+
 jobs:
   digger:
     runs-on: ubuntu-latest
